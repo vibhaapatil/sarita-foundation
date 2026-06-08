@@ -405,7 +405,21 @@
 .support-item--right-border { border-right: 1px solid rgba(245,240,232,0.1); }
 .support-item--bottom-border { border-bottom: 3px solid var(--orange); }
 
-.support-item__icon { font-size: 36px; margin-bottom: 14px; }
+.support-item__img-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 0 auto 14px;
+}
+
+.support-item__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.9);
+}
 
 .support-item__label {
   font-size: 13.5px;
@@ -518,7 +532,14 @@
   padding: 40px;
 }
 
-.success-screen__emoji  { font-size: 72px; margin-bottom: 20px; }
+.success-screen__img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 24px;
+  border: 4px solid var(--orange);
+}
 
 .success-screen__title {
   font-family: var(--pf);

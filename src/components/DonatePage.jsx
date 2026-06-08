@@ -37,29 +37,29 @@ const INDIAN_STATES = [
 ];
 
 const SUPPORTS = [
-  { icon: "📚", label: "Books & stationery for underprivileged children" },
-  { icon: "🏥", label: "Free health camps & medicines for rural families" },
-  { icon: "👩‍🏫", label: "Teacher training & capacity building" },
-  { icon: "💧", label: "Sanitation drives & hygiene kit distribution" },
-  { icon: "💰", label: "Financial aid for widows & vulnerable families" },
-  { icon: "🎓", label: "Merit scholarships for girl children" },
-  { icon: "🌾", label: "Livelihood & skill development programs" },
-  { icon: "🖥️", label: "Digital literacy for rural & tribal children" },
+  { img: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=300&q=80", label: "Books & stationery for underprivileged children" },
+  { img: "https://images.unsplash.com/photo-1584515933487-779824d29309?w=300&q=80", label: "Free health camps & medicines for rural families" },
+  { img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=300&q=80", label: "Teacher training & capacity building" },
+  { img: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=300&q=80",    label: "Sanitation drives & hygiene kit distribution" },
+  { img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&q=80", label: "Financial aid for widows & vulnerable families" },
+  { img: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=300&q=80", label: "Merit scholarships for girl children" },
+  { img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=300&q=80", label: "Livelihood & skill development programs" },
+  { img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=300&q=80", label: "Digital literacy for rural & tribal children" },
 ];
 
 const FAQS = [
-  { q: "How does my donation make a difference?",             a: "100% of your donation goes directly to our programs in education, healthcare, sanitation, and financial support. We publish quarterly impact reports so you can see exactly where your money goes." },
-  { q: "Will I receive updates about my donation?",           a: "Yes! You will receive an email confirmation immediately after your payment. We also send quarterly newsletters with stories and impact data from the communities your donation supports." },
+  { q: "How does my donation make a difference?",             a: "100% of your donation goes directly to our programs in education, healthcare, sanitation, and financial support. We are launching our first campaigns in 2026 and will publish full impact reports so you can see exactly where your money goes." },
+  { q: "Will I receive updates about my donation?",           a: "Yes. You will receive an email confirmation immediately after your payment. As we launch our campaigns, we will send updates with stories and impact data from the communities your donation supports." },
   { q: "Can I claim tax benefits on my donation?",            a: "Absolutely. Sarita Foundation is registered under Section 80G of the Income Tax Act. You will receive a tax receipt via email within 7 working days of your donation." },
-  { q: "How does Sarita Foundation ensure transparency?",     a: "We maintain complete financial transparency with audited accounts published annually. An independent board reviews all expenditure, and our program reports are publicly accessible on our website." },
-  { q: "Is there a minimum donation amount?",                 a: "There is no minimum. Every rupee counts. However, even ₹500 can provide stationery for one child for an entire month." },
+  { q: "How does Sarita Foundation ensure transparency?",     a: "We are committed to full financial transparency from day one — audited accounts, an independent governing board, and publicly accessible program reports. We are a new organisation and our credibility is built on this from the start." },
+  { q: "Is there a minimum donation amount?",                 a: "There is no minimum. Every rupee counts. Even ₹500 can provide a stationery kit for one child for an entire academic year." },
 ];
 
 const STATS = [
-  { n: "5,000+", l: "Lives Impacted" },
-  { n: "12+",    l: "Active Campaigns" },
-  { n: "8",      l: "States Reached" },
-  { n: "200+",   l: "Volunteers" },
+  { n: "2026",    l: "Year Founded" },
+  { n: "6",       l: "Campaigns Planned" },
+  { n: "Maharashtra", l: "Starting Region" },
+  { n: "100%",    l: "Donation Transparency" },
 ];
 
 /* ── Helpers ── */
@@ -179,7 +179,11 @@ export default function DonatePage() {
   if (status === "success") {
     return (
       <div className="success-screen">
-        <div className="success-screen__emoji">🙏</div>
+        <img
+          src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400&q=80"
+          alt="Thank you"
+          className="success-screen__img"
+        />
         <h1 className="success-screen__title">Thank you, {form.name.split(" ")[0]}!</h1>
         <p className="success-screen__para">
           Your donation of <strong>₹{finalAmount.toLocaleString()}</strong> has been received.
@@ -233,18 +237,18 @@ export default function DonatePage() {
 
         {/* LEFT — Story */}
         <div>
-          <h2 className="story__heading">Help us uplift the lives of those who need it most</h2>
+          <h2 className="story__heading">Help us reach the families who need it most — from day one</h2>
           <p className="story__para">
             Education, healthcare, and dignity are not privileges — they are rights. But for countless families across rural and urban India, these remain out of reach. Poverty, lack of awareness, and systemic inequalities push children out of classrooms and families into crisis.
           </p>
           <p className="story__para">
-            At Sarita Foundation, we believe that no child should grow up without books, no family should go without medicine, and no person should be left behind because they were born without means.
+            Sarita Foundation was founded in 2026 to change that. We are at the very beginning — planning our first campaigns in Maharashtra, building our volunteer network, and laying the groundwork for programs in education, healthcare, sanitation, and financial support.
           </p>
           <p className="story__para">
-            Through our programs in <strong>education, primary healthcare, sanitation, and financial inclusion</strong>, we reach the most vulnerable — in villages, slums, and tribal areas — where help is needed most.
+            Your donation today is not just money — it is the foundation stone. It determines how fast we can launch, how many families we reach in year one, and how credibly we can grow.
           </p>
           <p className="story__para story__para--last">
-            These are resilient communities full of potential. They cannot do it alone. Your support can make all the difference — keeping children in school, families healthy, and hope alive.
+            These are resilient communities full of potential. They cannot do it alone. Be among the first to stand with them — your support directly shapes what Sarita Foundation becomes in its first year.
           </p>
 
           <div className="tax-box">
@@ -366,7 +370,11 @@ export default function DonatePage() {
             </div>
 
             <p className="form-card__note">
-              🔒 Secured by Razorpay · 80G tax receipt via email · All major UPI, cards & net banking accepted
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:"inline",verticalAlign:"middle",marginRight:4}}>
+                <rect x="2" y="6" width="10" height="7" rx="2" stroke="currentColor" strokeWidth="1.4"/>
+                <path d="M4.5 6V4.5a2.5 2.5 0 015 0V6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+              </svg>
+              Secured by Razorpay · 80G tax receipt via email · All major UPI, cards &amp; net banking accepted
             </p>
           </div>
         </div>
@@ -377,12 +385,14 @@ export default function DonatePage() {
         <div className="supports-inner">
           <h2 className="section-heading">WHAT WILL YOUR DONATION SUPPORT?</h2>
           <div className="supports-grid">
-            {SUPPORTS.map(({ icon, label }, i) => (
+            {SUPPORTS.map(({ img, label }, i) => (
               <div
                 key={label}
                 className={`support-item ${i % 4 !== 3 ? "support-item--right-border" : ""} ${i < 4 ? "support-item--bottom-border" : ""}`}
               >
-                <div className="support-item__icon">{icon}</div>
+                <div className="support-item__img-wrap">
+                  <img src={img} alt={label} className="support-item__img" />
+                </div>
                 <p className="support-item__label">{label}</p>
               </div>
             ))}
