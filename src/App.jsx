@@ -5,6 +5,7 @@ import ImpactSection from "./components/ImpactSection";
 import MissionBanner from "./components/MissionBanner";
 import AboutPage from "./components/AboutPage";
 import DonatePage from "./components/DonatePage";
+import CampaignsPage from "./components/CampaignsPage";
 import "./App.css";
 
 function Home() {
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="/"       element={<Home />} />
            <Route path="/about" element={<AboutPage />} />
            <Route path="/donate" element={<DonatePage />} />
+            <Route path="/campaigns" element={<CampaignsPage />} />
            {/* Add more routes as needed */}
            <Route path="*" element={<Home />} /> {/* Fallback to Home for unknown routes */}
           </Routes>
