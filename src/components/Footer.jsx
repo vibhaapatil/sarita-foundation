@@ -1,6 +1,6 @@
 // import "../css/Footer.css";
 // const FOOTER_LINKS = {
-//   "Quick Links": ["Home", "About Us", "Campaigns", "Our Work", "Resource Center"],
+//   "Quick Links": ["Home", "About Us", "Campaigns", "Our Work", "Our Focus Areas"],
 //   "Get Involved": ["Volunteer", "Donate", "Partner With Us", "Fundraise"],
 //   "Contact": ["info@saritafoundation.org", "+91 98765 43210", "Mumbai, Maharashtra, India"],
 // };
