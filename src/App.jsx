@@ -8,6 +8,7 @@ import DonatePage from "./components/DonatePage";
 import FocusAreasPage from "./components/FocusAreasPage";
 import SupportUsPage from "./components/SupportUsPage";
 import ContactPage from "./components/ContactPage";
+import CampaignsPage from "./components/CampaignsPage";
 import "./App.css";
 
 function Home() {
@@ -30,6 +31,7 @@ export default function App() {
           <Routes>
             <Route path="/"       element={<Home />} />
            <Route path="/about" element={<AboutPage />} />
+           <Route path="/campaigns" element={<CampaignsPage/>}/>
            <Route path="/donate" element={<DonatePage />} />
            <Route path="/resources" element={<FocusAreasPage />} />
            <Route path="/support" element={<SupportUsPage />} />
