@@ -11,6 +11,7 @@
   --border: #E8DCC8;
   --pf: 'Playfair Display', serif;
   --dm: 'DM Sans', sans-serif;
+  --ease: cubic-bezier(.16, 1, .3, 1);
 }
 
 /* ── Page shell ── */
@@ -19,6 +20,47 @@
   background: var(--cream);
   color: var(--dark);
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ════════════════════════════
+   SCROLL-REVEAL UTILITY
+════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity .8s var(--ease), transform .8s var(--ease);
+  will-change: opacity, transform;
+}
+.reveal--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes dotFill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.35); opacity: .55; }
+}
+@keyframes glowDrift {
+  0%, 100% { transform: translate(-10%, -10%) scale(1); }
+  50%      { transform: translate(8%, 6%) scale(1.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ════════════════════════════
@@ -36,9 +78,9 @@
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 1s ease;
+  transition: opacity 1.1s var(--ease);
 }
-.camp-hero__slide.active { opacity: 1; }
+.camp-hero__slide.active { opacity: 1; z-index: 1; }
 
 .camp-hero__img {
   width: 100%;
@@ -46,6 +88,12 @@
   object-fit: cover;
   object-position: center 40%;
   display: block;
+  transform: scale(1);
+  transition: none;
+}
+.camp-hero__slide.active .camp-hero__img {
+  transform: scale(1.09);
+  transition: transform 9s linear;
 }
 
 .camp-hero__overlay {
@@ -78,6 +126,8 @@
   padding: 5px 14px;
   border-radius: 100px;
   margin-bottom: 18px;
+  opacity: 0;
+  animation: heroFadeUp .6s var(--ease) forwards;
 }
 
 .camp-hero__heading {
@@ -91,6 +141,14 @@
 }
 
 .camp-hero__heading span {
+  display: block;
+  opacity: 0;
+  animation: heroFadeUp .7s var(--ease) forwards;
+  animation-delay: calc(.12s + var(--i, 0) * .09s);
+}
+
+.camp-hero__heading-accent {
+  display: inline-block;
   color: var(--orange);
   font-style: italic;
 }
@@ -102,6 +160,9 @@
   line-height: 1.7;
   margin-bottom: 28px;
   max-width: 460px;
+  opacity: 0;
+  animation: heroFadeUp .7s var(--ease) forwards;
+  animation-delay: .5s;
 }
 
 .camp-hero__btn {
@@ -116,34 +177,47 @@
   font-size: 14px;
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.18s, transform 0.12s;
+  opacity: 0;
+  animation: heroFadeUp .7s var(--ease) forwards;
+  animation-delay: .62s;
+  transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
 }
 .camp-hero__btn:hover {
   background: #b8521a;
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 28px rgba(212,98,26,0.4);
 }
 
-/* Dot indicators */
+/* Slide progress bars */
 .camp-hero__dots {
   position: absolute;
-  bottom: 24px;
+  bottom: 26px;
   right: 40px;
   display: flex;
   gap: 8px;
+  z-index: 2;
 }
 .camp-hero__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.4);
+  position: relative;
+  width: 32px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.28);
   border: none;
   cursor: pointer;
   padding: 0;
-  transition: background 0.2s, transform 0.2s;
+  overflow: hidden;
+  transition: background 0.25s, transform 0.2s;
 }
-.camp-hero__dot.active {
+.camp-hero__dot:hover { background: rgba(255,255,255,0.45); }
+.camp-hero__dot.active { background: rgba(255,255,255,0.28); }
+.camp-hero__dot-fill {
+  position: absolute;
+  inset: 0;
+  width: 0%;
   background: var(--orange);
-  transform: scale(1.4);
+  border-radius: 2px;
+  animation: dotFill 4.5s linear forwards;
 }
 
 /* Slide counter */
@@ -155,8 +229,13 @@
   font-size: 1.1rem;
   color: rgba(255,255,255,0.6);
   font-weight: 700;
+  z-index: 2;
 }
-.camp-hero__counter span { color: #fff; }
+.camp-hero__counter span {
+  color: #fff;
+  display: inline-block;
+  transition: transform 0.3s var(--ease);
+}
 
 /* ════════════════════════════
    SUPPORT A CAUSE  — campaign cards
@@ -175,7 +254,17 @@
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-bottom: 48px;
+  margin-bottom: 16px;
+}
+
+.support-section__intro {
+  font-family: var(--dm);
+  font-size: 15px;
+  color: var(--muted);
+  text-align: center;
+  max-width: 580px;
+  margin: 0 auto 44px;
+  line-height: 1.75;
 }
 
 .support-grid {
@@ -187,15 +276,16 @@
 .support-card {
   display: flex;
   flex-direction: column;
+  height: 100%;
   border-radius: 16px;
   overflow: hidden;
   background: #fff;
   box-shadow: 0 4px 20px rgba(44,36,22,0.09);
-  transition: transform 0.22s, box-shadow 0.22s;
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
 }
 .support-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 36px rgba(44,36,22,0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(44,36,22,0.16);
 }
 
 .support-card__img-wrap {
@@ -208,10 +298,10 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.4s ease;
+  transition: transform 0.6s var(--ease);
 }
 .support-card:hover .support-card__img {
-  transform: scale(1.04);
+  transform: scale(1.07);
 }
 .support-card__img-overlay {
   position: absolute;
@@ -222,12 +312,17 @@
   position: absolute;
   bottom: 18px;
   left: 18px;
+  right: 18px;
   font-family: var(--pf);
   font-size: clamp(1.2rem, 2vw, 1.5rem);
   font-weight: 900;
   color: #fff;
   line-height: 1.1;
   text-transform: uppercase;
+  transition: transform 0.4s var(--ease);
+}
+.support-card:hover .support-card__title {
+  transform: translateY(-4px);
 }
 
 .support-card__body {
@@ -259,7 +354,7 @@
 .support-card__upcoming {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   background: #FFF3E0;
   color: var(--orange);
   border: 1.5px solid var(--orange);
@@ -271,7 +366,16 @@
   padding: 5px 12px;
   border-radius: 100px;
   margin-bottom: 12px;
+  width: fit-content;
 }
+.support-card__upcoming-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--orange);
+  animation: pulseDot 1.8s ease-in-out infinite;
+}
+
 .support-card__launch {
   display: flex;
   align-items: center;
@@ -282,6 +386,7 @@
   margin-bottom: 16px;
 }
 .support-card__launch strong { color: var(--dark); font-weight: 600; }
+
 .support-card__goal {
   display: flex;
   justify-content: space-between;
@@ -300,37 +405,6 @@
   font-weight: 700;
 }
 
-/* Progress bar */
-.support-card__progress-label {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--dm);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--dark);
-  margin-bottom: 6px;
-}
-.support-card__progress-bar {
-  height: 7px;
-  background: var(--border);
-  border-radius: 100px;
-  overflow: hidden;
-  margin-bottom: 16px;
-}
-.support-card__progress-fill {
-  height: 100%;
-  background: var(--orange);
-  border-radius: 100px;
-  transition: width 0.6s ease;
-}
-.support-card__meta {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--dm);
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 14px;
-}
 .support-card__btn {
   display: block;
   text-align: center;
@@ -344,9 +418,13 @@
   font-size: 13.5px;
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.18s;
+  transition: background 0.22s var(--ease), transform 0.22s var(--ease), letter-spacing 0.22s var(--ease);
 }
-.support-card__btn:hover { background: var(--orange); }
+.support-card__btn:hover {
+  background: var(--orange);
+  transform: translateY(-2px);
+  letter-spacing: 0.02em;
+}
 
 /* ════════════════════════════
    OUR PROGRAMMES
@@ -378,6 +456,13 @@
   display: flex;
   gap: 20px;
   align-items: flex-start;
+  padding: 12px;
+  margin: -12px;
+  border-radius: 16px;
+  transition: background 0.3s var(--ease);
+}
+.programme-item:hover {
+  background: var(--cream);
 }
 .programme-icon {
   font-size: 36px;
@@ -388,6 +473,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
+}
+.programme-item:hover .programme-icon {
+  transform: scale(1.08) rotate(-4deg);
+  box-shadow: 0 8px 20px rgba(44,36,22,0.12);
 }
 .programme-title {
   font-family: var(--pf);
@@ -413,11 +503,15 @@
 .impact-section {
   background: var(--dark);
   padding: 72px 40px;
+  position: relative;
+  overflow: hidden;
 }
 .impact-inner {
   max-width: 1000px;
   margin: 0 auto;
   text-align: center;
+  position: relative;
+  z-index: 1;
 }
 .impact-heading {
   font-family: var(--pf);
@@ -440,6 +534,7 @@
   color: var(--orange);
   display: block;
   margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
 }
 .impact-stat__label {
   font-family: var(--dm);
@@ -476,6 +571,11 @@
   overflow: hidden;
   background: var(--dark);
   position: relative;
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
+}
+.completed-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px rgba(0,0,0,0.3);
 }
 .completed-card__img {
   width: 100%;
@@ -484,6 +584,12 @@
   display: block;
   filter: grayscale(40%);
   opacity: 0.75;
+  transition: filter 0.4s var(--ease), opacity 0.4s var(--ease), transform 0.5s var(--ease);
+}
+.completed-card:hover .completed-card__img {
+  filter: grayscale(0%);
+  opacity: 1;
+  transform: scale(1.04);
 }
 .completed-card__body {
   padding: 20px 22px 24px;
@@ -520,11 +626,25 @@
    CTA BANNER
 ════════════════════════════ */
 .camp-cta {
+  position: relative;
   background: var(--orange);
   padding: 64px 40px;
   text-align: center;
+  overflow: hidden;
+}
+.camp-cta__glow {
+  position: absolute;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 70%);
+  top: -200px;
+  left: -120px;
+  animation: glowDrift 14s ease-in-out infinite;
+  pointer-events: none;
 }
 .camp-cta__heading {
+  position: relative;
   font-family: var(--pf);
   font-size: clamp(1.8rem, 3.5vw, 2.8rem);
   font-weight: 900;
@@ -534,6 +654,7 @@
   margin-bottom: 16px;
 }
 .camp-cta__body {
+  position: relative;
   font-family: var(--dm);
   font-size: 16px;
   color: rgba(255,255,255,0.85);
@@ -543,6 +664,7 @@
   margin-right: auto;
 }
 .camp-cta__btn {
+  position: relative;
   display: inline-block;
   padding: 16px 40px;
   background: #fff;
@@ -554,9 +676,12 @@
   font-size: 16px;
   cursor: pointer;
   text-decoration: none;
-  transition: transform 0.15s;
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
 }
-.camp-cta__btn:hover { transform: translateY(-2px); }
+.camp-cta__btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 14px 32px rgba(0,0,0,0.18);
+}
 
 /* ════════════════════════════
    HOW YOUR DONATION HELPS
@@ -591,19 +716,41 @@
   gap: 24px;
 }
 .helps-card {
+  height: 100%;
   background: #fff;
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(44,36,22,0.08);
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
+}
+.helps-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(44,36,22,0.15);
+}
+.helps-card__img-wrap {
+  overflow: hidden;
+  height: 180px;
 }
 .helps-card__img {
   width: 100%;
-  height: 180px;
+  height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.6s var(--ease);
+}
+.helps-card:hover .helps-card__img {
+  transform: scale(1.08);
 }
 .helps-card__body { padding: 22px 22px 26px; }
-.helps-card__icon { font-size: 26px; margin-bottom: 10px; display: block; }
+.helps-card__icon {
+  font-size: 26px;
+  margin-bottom: 10px;
+  display: inline-block;
+  transition: transform 0.4s var(--ease);
+}
+.helps-card:hover .helps-card__icon {
+  transform: scale(1.18) rotate(-6deg);
+}
 .helps-card__title {
   font-family: var(--pf);
   font-size: 1.1rem;
@@ -616,4 +763,27 @@
   font-size: 13.5px;
   color: var(--mid);
   line-height: 1.7;
+}
+
+/* ════════════════════════════
+   RESPONSIVE
+════════════════════════════ */
+@media (max-width: 1024px) {
+  .support-grid { grid-template-columns: repeat(2, 1fr); }
+  .helps-grid { grid-template-columns: repeat(2, 1fr); }
+  .impact-grid { grid-template-columns: repeat(2, 1fr); gap: 36px 24px; }
+  .programmes-grid { grid-template-columns: 1fr; gap: 32px; }
+}
+
+@media (max-width: 640px) {
+  .camp-hero { height: 620px; }
+  .camp-hero__text { left: 24px; right: 24px; bottom: 80px; max-width: none; }
+  .camp-hero__dots { right: 24px; }
+  .camp-hero__counter { right: 24px; }
+  .support-section, .helps-section, .programmes-section, .impact-section, .completed-section, .camp-cta {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .support-grid, .helps-grid { grid-template-columns: 1fr; }
+  .impact-grid { grid-template-columns: repeat(2, 1fr); }
 }
