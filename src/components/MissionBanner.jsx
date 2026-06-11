@@ -1,4 +1,5 @@
 import "../css/MissionBanner.css";
+import { Link } from "react-router-dom";
 
 export default function MissionBanner() {
   return (
@@ -35,8 +36,8 @@ export default function MissionBanner() {
         </div>
 
         <div className="mission__cta-row">
-          <button className="mission__btn-primary">Donate Now →</button>
-          <button className="mission__btn-outline">Learn More</button>
+        <Link to="/donate" className="btn-donate">Donate Now →</Link>
+        <Link to="/about" className="mission__btn-outline">Learn More</Link>
         </div>
       </div>
     </section>

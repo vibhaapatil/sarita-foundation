@@ -1,30 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import "../css/donate.css";
 
-/*
-  ─────────────────────────────────────────────────────────────
-  SETUP CHECKLIST:
-
-  RAZORPAY:
-    1. Sign up at https://razorpay.com → Settings → API Keys
-    2. Copy Key ID (starts with rzp_test_ or rzp_live_)
-    3. Replace RAZORPAY_KEY_ID below
-
-  EMAILJS (your existing setup — just add to template):
-    New variables: {{payment_id}}, {{payment_status}}
-  ─────────────────────────────────────────────────────────────
-*/
-
-const RAZORPAY_KEY_ID     = "rzp_test_XXXXXXXXXXXXXXXX";
 const EMAILJS_SERVICE_ID  = "service_pwamgiz";
 const EMAILJS_TEMPLATE_ID = "template_5tgyabg";
 const EMAILJS_PUBLIC_KEY  = "UbCmtDxYs00u-Ox--";
 
 const AMOUNTS = [
-  { value: 500,  label: "₹500",   impact: "Stationery kit for one child" },
-  { value: 1500, label: "₹1,500", impact: "Medicines for a family" },
-  { value: 3000, label: "₹3,000", impact: "Sanitation kit for 5 households" },
-  { value: 6000, label: "₹6,000", impact: "School fees for one student" },
+  { value: 500,   label: "₹500",    impact: "Stationery for one child for a month" },
+  { value: 1000,  label: "₹1,000",  impact: "Essential medicines for one family" },
+  { value: 1500,  label: "₹1,500",  impact: "A week of nutritious meals for a family" },
+  { value: 2500,  label: "₹2,500",  impact: "School supplies for 5 children" },
+  { value: 5000,  label: "₹5,000",  impact: "A month of financial support for a widow" },
+  { value: 10000, label: "₹10,000", impact: "A free health camp for an entire village" },
 ];
 
 const INDIAN_STATES = [
@@ -48,31 +35,107 @@ const SUPPORTS = [
 ];
 
 const FAQS = [
-  { q: "How does my donation make a difference?",             a: "100% of your donation goes directly to our programs in education, healthcare, sanitation, and financial support. We publish quarterly impact reports so you can see exactly where your money goes." },
-  { q: "Will I receive updates about my donation?",           a: "Yes! You will receive an email confirmation immediately after your payment. We also send quarterly newsletters with stories and impact data from the communities your donation supports." },
-  { q: "Can I claim tax benefits on my donation?",            a: "Absolutely. Sarita Foundation is registered under Section 80G of the Income Tax Act. You will receive a tax receipt via email within 7 working days of your donation." },
-  { q: "How does Sarita Foundation ensure transparency?",     a: "We maintain complete financial transparency with audited accounts published annually. An independent board reviews all expenditure, and our program reports are publicly accessible on our website." },
-  { q: "Is there a minimum donation amount?",                 a: "There is no minimum. Every rupee counts. However, even ₹500 can provide stationery for one child for an entire month." },
+  { q: "How does my donation make a difference?",         a: "100% of your donation goes directly to our programs in education, healthcare, sanitation, and financial support. We publish quarterly impact reports so you can see exactly where your money goes." },
+  { q: "Will I receive updates about my donation?",       a: "Yes! You will receive an email confirmation immediately after submitting your details. We also send quarterly newsletters with stories and impact data from the communities your donation supports." },
+  { q: "Can I claim tax benefits on my donation?",        a: "Absolutely. Sarita Foundation is registered under Section 80G of the Income Tax Act. You will receive a tax receipt via email within 7 working days of your donation." },
+  { q: "How does Sarita Foundation ensure transparency?", a: "We maintain complete financial transparency with audited accounts published annually. An independent board reviews all expenditure, and our program reports are publicly accessible on our website." },
+  { q: "Is there a minimum donation amount?",             a: "There is no minimum. Every rupee counts. However, even ₹500 can provide stationery for one child for an entire month." },
 ];
 
 const STATS = [
-  { n: "5,000+", l: "Lives Impacted" },
-  { n: "12+",    l: "Active Campaigns" },
-  { n: "8",      l: "States Reached" },
-  { n: "200+",   l: "Volunteers" },
+  { n: "2026",         l: "Founded" },
+  { n: "6",            l: "Campaigns Planned" },
+  { n: "Maharashtra",  l: "Starting Region" },
+  { n: "100%",         l: "Donation Transparency" },
 ];
 
-/* ── Helpers ── */
-function loadScript(src) {
+function loadEmailJS() {
   return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    if (window.emailjs) { resolve(); return; }
     const s = document.createElement("script");
-    s.src = src; s.onload = resolve; s.onerror = reject;
+    s.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js";
+    s.onload = resolve;
+    s.onerror = reject;
     document.head.appendChild(s);
   });
 }
 
-/* ═══════════════════════════════════════════ */
+/* ─────────────────────────────────────────────
+   Reveal-on-scroll wrapper
+───────────────────────────────────────────── */
+function Reveal({ children, delay = 0, className = "" }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          obs.unobserve(el);
+        }
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`reveal${visible ? " reveal--visible" : ""}${className ? ` ${className}` : ""}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   Animated stat — counts up numbers, fades in text
+───────────────────────────────────────────── */
+function AnimatedStat({ value, className }) {
+  const ref = useRef(null);
+  const [display, setDisplay] = useState(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        const match = String(value).match(/^(\d+)(%?)$/);
+        if (!match) {
+          setDisplay(value);
+          obs.unobserve(el);
+          return;
+        }
+        const target = parseInt(match[1], 10);
+        const suffix = match[2];
+        const duration = 1200;
+        const start = performance.now();
+
+        const tick = (now) => {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          setDisplay(Math.round(target * eased) + suffix);
+          if (progress < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        obs.unobserve(el);
+      },
+      { threshold: 0.4 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [value]);
+
+  return <span ref={ref} className={className}>{display ?? "0"}</span>;
+}
+
 export default function DonatePage() {
   const [selected, setSelected]   = useState(1500);
   const [custom, setCustom]       = useState("");
@@ -80,37 +143,16 @@ export default function DonatePage() {
   const [form, setForm]           = useState({ name:"", email:"", phone:"", pan:"", state:"", city:"", address:"", pincode:"" });
   const [openFaq, setOpenFaq]     = useState(null);
   const [status, setStatus]       = useState("idle");
-  const [paymentId, setPaymentId] = useState("");
   const [errorMsg, setErrorMsg]   = useState("");
 
-  const finalAmount = custom ? Number(custom) : selected;
-  const impact = AMOUNTS.find(a => a.value === selected)?.impact || "Making a direct impact";
-  const isProcessing = status === "paying" || status === "sending";
+  useEffect(() => { window.scrollTo(0, 0); }, []);
+
+  const finalAmount  = custom ? Number(custom) : selected;
+  const impact       = AMOUNTS.find(a => a.value === selected)?.impact || "Making a direct impact";
+  const isProcessing = status === "sending";
 
   function handleField(e) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
-  }
-
-  async function sendConfirmationEmail(rzpPaymentId) {
-    await loadScript("https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js");
-    if (window.emailjs && !window.emailjs._initialized) {
-      window.emailjs.init(EMAILJS_PUBLIC_KEY);
-      window.emailjs._initialized = true;
-    }
-    await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-      donor_name:     form.name,
-      donor_email:    form.email,
-      donor_phone:    form.phone,
-      donor_pan:      form.pan      || "Not provided",
-      donor_state:    form.state    || "Not provided",
-      donor_city:     form.city     || "Not provided",
-      donor_address:  form.address  || "Not provided",
-      donor_pincode:  form.pincode  || "Not provided",
-      amount:         `₹${finalAmount.toLocaleString()}`,
-      frequency:      frequency === "monthly" ? "Monthly" : "One-time",
-      payment_id:     rzpPaymentId  || "N/A",
-      payment_status: "Payment Successful",
-    });
   }
 
   async function handleDonate() {
@@ -123,78 +165,60 @@ export default function DonatePage() {
       return;
     }
 
-    setStatus("paying");
+    setStatus("sending");
     setErrorMsg("");
 
     try {
-      await loadScript("https://checkout.razorpay.com/v1/checkout.js");
-    } catch {
+      await loadEmailJS();
+
+      if (!window.emailjs._initialized) {
+        window.emailjs.init(EMAILJS_PUBLIC_KEY);
+        window.emailjs._initialized = true;
+      }
+
+      await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        donor_name:    form.name,
+        donor_email:   form.email,
+        donor_phone:   form.phone,
+        donor_pan:     form.pan     || "Not provided",
+        donor_state:   form.state   || "Not provided",
+        donor_city:    form.city    || "Not provided",
+        donor_address: form.address || "Not provided",
+        donor_pincode: form.pincode || "Not provided",
+        amount:        `₹${finalAmount.toLocaleString()}`,
+        frequency:     frequency === "monthly" ? "Monthly" : "One-time",
+      });
+
+      setStatus("success");
+    } catch (e) {
+      console.error("EmailJS error:", e);
       setStatus("error");
-      setErrorMsg("Could not load payment gateway. Please check your internet connection and try again.");
-      return;
+      setErrorMsg("Could not send email. Please try again or contact donations@saritafoundation.org");
     }
-
-    const options = {
-      key:         RAZORPAY_KEY_ID,
-      amount:      finalAmount * 100,
-      currency:    "INR",
-      name:        "Sarita Foundation",
-      description: frequency === "monthly"
-        ? `Monthly Donation — ₹${finalAmount.toLocaleString()}/month`
-        : `One-time Donation — ₹${finalAmount.toLocaleString()}`,
-      prefill: { name: form.name, email: form.email, contact: form.phone },
-      notes:   { pan: form.pan, state: form.state, city: form.city, address: form.address, pincode: form.pincode, frequency },
-      theme:   { color: "#D4621A" },
-      modal: {
-        ondismiss: () => setStatus("idle"),
-      },
-      handler: async function (response) {
-        const pid = response.razorpay_payment_id;
-        setPaymentId(pid);
-        setStatus("sending");
-        try {
-          await sendConfirmationEmail(pid);
-        } catch (e) {
-          console.error("EmailJS error:", e);
-        }
-        setStatus("success");
-      },
-    };
-
-    const rzp = new window.Razorpay(options);
-    rzp.on("payment.failed", function (response) {
-      setStatus("error");
-      setErrorMsg(`Payment failed: ${response.error.description || "Unknown error"}. Please try again.`);
-    });
-    rzp.open();
   }
 
   const buttonLabel = () => {
-    if (status === "paying")  return "Opening Payment…";
-    if (status === "sending") return "Sending Confirmation…";
+    if (status === "sending") return "Sending…";
     return `Donate ₹${finalAmount.toLocaleString()} ${frequency === "monthly" ? "/ Month" : "Now"} →`;
   };
 
-  /* ── Success screen ── */
   if (status === "success") {
     return (
       <div className="success-screen">
         <div className="success-screen__emoji">🙏</div>
         <h1 className="success-screen__title">Thank you, {form.name.split(" ")[0]}!</h1>
         <p className="success-screen__para">
-          Your donation of <strong>₹{finalAmount.toLocaleString()}</strong> has been received.
-          A confirmation has been sent to <strong>{form.email}</strong>.
+          Payment instructions have been sent to <strong>{form.email}</strong>.
+          Please complete the transfer using the UPI ID or bank details in that email.
         </p>
-        {paymentId && (
-          <p className="success-screen__pid">
-            Payment ID: <code>{paymentId}</code>
-          </p>
-        )}
-        <p className="success-screen__note">Your 80G tax receipt will be emailed within 7 working days.</p>
+        <p className="success-screen__note">
+          Once done, reply to that email with your transaction ID or screenshot.
+          Your 80G tax receipt will be sent within 7 working days.
+        </p>
         <button
           className="success-screen__btn"
           onClick={() => {
-            setStatus("idle"); setPaymentId("");
+            setStatus("idle");
             setForm({ name:"", email:"", phone:"", pan:"", state:"", city:"", address:"", pincode:"" });
           }}
         >
@@ -204,11 +228,9 @@ export default function DonatePage() {
     );
   }
 
-  /* ── Main page ── */
   return (
     <div className="donate-page">
 
-      {/* Hero */}
       <div className="hero">
         <img
           className="hero__img"
@@ -228,198 +250,216 @@ export default function DonatePage() {
         </div>
       </div>
 
-      {/* Main grid */}
       <div className="main-grid">
 
-        {/* LEFT — Story */}
         <div>
-          <h2 className="story__heading">Help us uplift the lives of those who need it most</h2>
-          <p className="story__para">
-            Education, healthcare, and dignity are not privileges — they are rights. But for countless families across rural and urban India, these remain out of reach. Poverty, lack of awareness, and systemic inequalities push children out of classrooms and families into crisis.
-          </p>
-          <p className="story__para">
-            At Sarita Foundation, we believe that no child should grow up without books, no family should go without medicine, and no person should be left behind because they were born without means.
-          </p>
-          <p className="story__para">
-            Through our programs in <strong>education, primary healthcare, sanitation, and financial inclusion</strong>, we reach the most vulnerable — in villages, slums, and tribal areas — where help is needed most.
-          </p>
-          <p className="story__para story__para--last">
-            These are resilient communities full of potential. They cannot do it alone. Your support can make all the difference — keeping children in school, families healthy, and hope alive.
-          </p>
-
-          <div className="tax-box">
-            <p className="tax-box__main">
-              <strong>Your contributions are eligible for 50% tax benefit</strong> under Section 80G as Sarita Foundation is a registered non-profit organisation.
+          <Reveal><h2 className="story__heading">Help us uplift the lives of those who need it most</h2></Reveal>
+          <Reveal delay={60}>
+            <p className="story__para">
+              Education, healthcare, and dignity are not privileges — they are rights. But for countless families across rural and urban India, these remain out of reach. Poverty, lack of awareness, and systemic inequalities push children out of classrooms and families into crisis.
             </p>
-            <p className="tax-box__meta">PAN: XXXXX0000X · 80G Number: XXXXX0000XF20210</p>
-          </div>
+          </Reveal>
+          <Reveal delay={100}>
+            <p className="story__para">
+              At Sarita Foundation, we believe that no child should grow up without books, no family should go without medicine, and no person should be left behind because they were born without means.
+            </p>
+          </Reveal>
+          <Reveal delay={140}>
+            <p className="story__para">
+              Through our programs in <strong>education, primary healthcare, sanitation, and financial inclusion</strong>, we reach the most vulnerable — in villages, slums, and tribal areas — where help is needed most.
+            </p>
+          </Reveal>
+          <Reveal delay={180}>
+            <p className="story__para story__para--last">
+              These are resilient communities full of potential. They cannot do it alone. Your support can make all the difference — keeping children in school, families healthy, and hope alive.
+            </p>
+          </Reveal>
+
+          <Reveal delay={220}>
+            <div className="tax-box">
+              <p className="tax-box__main">
+                <strong>Your contributions are eligible for 50% tax benefit</strong> under Section 80G as Sarita Foundation is a registered non-profit organisation.
+              </p>
+              <p className="tax-box__meta">PAN: XXXXX0000X · 80G Number: XXXXX0000XF20210</p>
+            </div>
+          </Reveal>
 
           <div className="stats-grid">
-            {STATS.map(({ n, l }) => (
-              <div key={l} className="stat-card">
-                <span className="stat-card__number">{n}</span>
-                <span className="stat-card__label">{l}</span>
-              </div>
+            {STATS.map(({ n, l }, i) => (
+              <Reveal key={l} delay={260 + i * 60}>
+                <div className="stat-card">
+                  <AnimatedStat value={n} className="stat-card__number" />
+                  <span className="stat-card__label">{l}</span>
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>
 
-        {/* RIGHT — Donation form */}
-        <div className="form-card">
-          <div className="form-card__header">
-            <p className="form-card__title">SUPPORT THE CAUSE</p>
-            <p className="form-card__subtitle">MAKE A DIFFERENCE</p>
-          </div>
-
-          <div className="form-card__body">
-
-            {/* Frequency toggle */}
-            <div className="freq-toggle">
-              {["once", "monthly"].map(f => (
-                <button
-                  key={f}
-                  onClick={() => setFrequency(f)}
-                  className={`freq-btn ${frequency === f ? "freq-btn--active" : "freq-btn--inactive"}`}
-                >
-                  {f === "once" ? "Give Once" : "Give Monthly"}
-                </button>
-              ))}
+        <div className="form-card-wrap">
+          <div className="form-card">
+            <div className="form-card__header">
+              <p className="form-card__title">SUPPORT THE CAUSE</p>
+              <p className="form-card__subtitle">MAKE A DIFFERENCE</p>
             </div>
 
-            {/* Amount selection */}
-            <div className="amount-grid">
-              {AMOUNTS.map(({ value, label }) => {
-                const isActive = selected === value && !custom;
-                return (
-                  <label
-                    key={value}
-                    className={`amount-label ${isActive ? "amount-label--active" : "amount-label--inactive"}`}
+            <div className="form-card__body">
+
+              <div className="freq-toggle">
+                <span
+                  className="freq-toggle__indicator"
+                  style={{ transform: `translateX(${frequency === "once" ? "0%" : "100%"})` }}
+                />
+                {["once", "monthly"].map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setFrequency(f)}
+                    className={`freq-btn ${frequency === f ? "freq-btn--active" : "freq-btn--inactive"}`}
                   >
-                    <input
-                      type="radio"
-                      name="amount"
-                      value={value}
-                      checked={isActive}
-                      onChange={() => { setSelected(value); setCustom(""); }}
-                    />
-                    <span className={`amount-label__text ${isActive ? "amount-label__text--active" : "amount-label__text--inactive"}`}>
-                      {label}
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-
-            {!custom && (
-              <p className="impact-hint">
-                YOUR DONATION WILL HELP: <strong>{impact}</strong>
-              </p>
-            )}
-
-            <input
-              className="input-field input-field--mb"
-              placeholder="Enter other amount (₹)"
-              type="number"
-              value={custom}
-              onChange={e => { setCustom(e.target.value); setSelected(null); }}
-            />
-
-            {/* Donor details */}
-            <div className="fields-stack">
-              <input className="input-field" name="name"    placeholder="Enter Full Name *"  value={form.name}    onChange={handleField} />
-              <input className="input-field" name="email"   placeholder="Enter Email ID *"   value={form.email}   onChange={handleField} type="email" />
-              <input className="input-field" name="phone"   placeholder="Enter Mobile No *"  value={form.phone}   onChange={handleField} type="tel" />
-              <div className="fields-row">
-                <input className="input-field" name="pan"   placeholder="PAN Number"         value={form.pan}     onChange={handleField} />
-                <select className="input-field" name="state" value={form.state} onChange={handleField}>
-                  <option value="">Select State</option>
-                  {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
+                    {f === "once" ? "Give Once" : "Give Monthly"}
+                  </button>
+                ))}
               </div>
-              <div className="fields-row">
-                <input className="input-field" name="city"    placeholder="City"    value={form.city}    onChange={handleField} />
-                <input className="input-field" name="pincode" placeholder="Pincode" value={form.pincode} onChange={handleField} type="number" />
+
+              <div className="amount-grid">
+                {AMOUNTS.map(({ value, label }) => {
+                  const isActive = selected === value && !custom;
+                  return (
+                    <label
+                      key={value}
+                      className={`amount-label ${isActive ? "amount-label--active" : "amount-label--inactive"}`}
+                    >
+                      <input
+                        type="radio"
+                        name="amount"
+                        value={value}
+                        checked={isActive}
+                        onChange={() => { setSelected(value); setCustom(""); }}
+                      />
+                      <span className={`amount-label__text ${isActive ? "amount-label__text--active" : "amount-label__text--inactive"}`}>
+                        {label}
+                      </span>
+                    </label>
+                  );
+                })}
               </div>
-              <input className="input-field" name="address" placeholder="Address" value={form.address} onChange={handleField} />
-            </div>
 
-            {/* Pay button */}
-            <button
-              onClick={handleDonate}
-              disabled={isProcessing}
-              className={`donate-btn ${isProcessing ? "donate-btn--loading" : "donate-btn--active"}`}
-            >
-              {isProcessing && <span className="spinner" />}
-              {buttonLabel()}
-            </button>
+              <div className={`impact-hint-wrap ${!custom ? "impact-hint-wrap--open" : ""}`}>
+                <p className="impact-hint">
+                  YOUR DONATION WILL HELP: <strong>{impact}</strong>
+                </p>
+              </div>
 
-            {status === "error" && (
-              <p className="error-msg">
-                {errorMsg || "Something went wrong. Please try again or contact donations@saritafoundation.org"}
+              <input
+                className="input-field input-field--mb"
+                placeholder="Enter other amount (₹)"
+                type="number"
+                value={custom}
+                onChange={e => { setCustom(e.target.value); setSelected(null); }}
+              />
+
+              <div className="fields-stack">
+                <input className="input-field" name="name"    placeholder="Enter Full Name *"  value={form.name}    onChange={handleField} />
+                <input className="input-field" name="email"   placeholder="Enter Email ID *"   value={form.email}   onChange={handleField} type="email" />
+                <input className="input-field" name="phone"   placeholder="Enter Mobile No *"  value={form.phone}   onChange={handleField} type="tel" />
+                <div className="fields-row">
+                  <input className="input-field" name="pan"   placeholder="PAN Number"         value={form.pan}     onChange={handleField} />
+                  <select className="input-field" name="state" value={form.state} onChange={handleField}>
+                    <option value="">Select State</option>
+                    {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div className="fields-row">
+                  <input className="input-field" name="city"    placeholder="City"    value={form.city}    onChange={handleField} />
+                  <input className="input-field" name="pincode" placeholder="Pincode" value={form.pincode} onChange={handleField} type="number" />
+                </div>
+                <input className="input-field" name="address" placeholder="Address" value={form.address} onChange={handleField} />
+              </div>
+
+              <button
+                onClick={handleDonate}
+                disabled={isProcessing}
+                className={`donate-btn ${isProcessing ? "donate-btn--loading" : "donate-btn--active"}`}
+              >
+                {isProcessing && <span className="spinner" />}
+                {buttonLabel()}
+              </button>
+
+              {status === "error" && (
+                <p className="error-msg">{errorMsg}</p>
+              )}
+
+              <div className="pay-methods">
+                {["UPI", "NEFT", "IMPS", "RTGS"].map(m => (
+                  <span key={m} className="pay-pill">{m}</span>
+                ))}
+              </div>
+
+              <p className="form-card__note">
+                🔒 Payment details will be sent to your email · 80G tax receipt within 7 working days
               </p>
-            )}
-
-            <div className="pay-methods">
-              {["UPI", "Cards", "Net Banking", "Wallets"].map(m => (
-                <span key={m} className="pay-pill">{m}</span>
-              ))}
             </div>
-
-            <p className="form-card__note">
-              🔒 Secured by Razorpay · 80G tax receipt via email · All major UPI, cards & net banking accepted
-            </p>
           </div>
         </div>
       </div>
 
-      {/* What your donation supports */}
       <div className="supports-section">
         <div className="supports-inner">
-          <h2 className="section-heading">WHAT WILL YOUR DONATION SUPPORT?</h2>
+          <Reveal><h2 className="section-heading">WHAT WILL YOUR DONATION SUPPORT?</h2></Reveal>
           <div className="supports-grid">
             {SUPPORTS.map(({ icon, label }, i) => (
-              <div
-                key={label}
-                className={`support-item ${i % 4 !== 3 ? "support-item--right-border" : ""} ${i < 4 ? "support-item--bottom-border" : ""}`}
-              >
-                <div className="support-item__icon">{icon}</div>
-                <p className="support-item__label">{label}</p>
-              </div>
+              <Reveal key={label} delay={(i % 4) * 70} className="support-item-wrap">
+                <div
+                  className={`support-item ${i % 4 !== 3 ? "support-item--right-border" : ""} ${i < 4 ? "support-item--bottom-border" : ""}`}
+                >
+                  <div className="support-item__icon">{icon}</div>
+                  <p className="support-item__label">{label}</p>
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Stats strip */}
       <div className="stats-strip">
         <div className="stats-strip-inner">
-          {STATS.map(({ n, l }) => (
-            <div key={l}>
-              <span className="strip-stat__number">{n}</span>
-              <span className="strip-stat__label">{l}</span>
-            </div>
+          {STATS.map(({ n, l }, i) => (
+            <Reveal key={l} delay={i * 70}>
+              <div>
+                <AnimatedStat value={n} className="strip-stat__number" />
+                <span className="strip-stat__label">{l}</span>
+              </div>
+            </Reveal>
           ))}
         </div>
       </div>
 
-      {/* FAQ */}
       <div className="faq-section">
-        <h2 className="faq-heading">Frequently Asked Questions</h2>
+        <Reveal><h2 className="faq-heading">Frequently Asked Questions</h2></Reveal>
         <div className="faq-list">
-          {FAQS.map(({ q, a }, i) => (
-            <div key={q} className={i === 0 ? "faq-item--top-border" : "faq-item--bottom-border"}>
-              <button
-                onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                className={`faq-btn ${openFaq === i ? "faq-btn--open" : "faq-btn--closed"}`}
-              >
-                <span>{q}</span>
-                <span className={`faq-icon ${openFaq === i ? "faq-icon--open" : "faq-icon--closed"}`}>
-                  {openFaq === i ? "−" : "+"}
-                </span>
-              </button>
-              {openFaq === i && <p className="faq-answer">{a}</p>}
-            </div>
-          ))}
+          {FAQS.map(({ q, a }, i) => {
+            const isOpen = openFaq === i;
+            return (
+              <Reveal key={q} delay={i * 50} className={i === 0 ? "faq-item--top-border" : "faq-item--bottom-border"}>
+                <div>
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : i)}
+                    className={`faq-btn ${isOpen ? "faq-btn--open" : "faq-btn--closed"}`}
+                  >
+                    <span>{q}</span>
+                    <span className={`faq-icon ${isOpen ? "faq-icon--open" : "faq-icon--closed"}`}>
+                      {isOpen ? "−" : "+"}
+                    </span>
+                  </button>
+                  <div className={`faq-answer-wrap ${isOpen ? "faq-answer-wrap--open" : ""}`}>
+                    <div className="faq-answer-inner">
+                      <p className="faq-answer">{a}</p>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            );
+          })}
         </div>
       </div>
 

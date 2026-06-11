@@ -127,6 +127,88 @@ const HELPS = [
   },
 ];
 
+/* ─────────────────────────────────────────────
+   Reveal-on-scroll wrapper
+───────────────────────────────────────────── */
+function Reveal({ children, delay = 0, className = "" }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          obs.unobserve(el);
+        }
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`reveal${visible ? " reveal--visible" : ""}${className ? ` ${className}` : ""}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   Animated count-up stat
+───────────────────────────────────────────── */
+function AnimatedStat({ value, label }) {
+  const ref = useRef(null);
+  const [display, setDisplay] = useState(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        const match = value.match(/^([\d,]+)(\+?)$/);
+        if (!match) {
+          setDisplay(value);
+          obs.unobserve(el);
+          return;
+        }
+        const target = parseInt(match[1].replace(/,/g, ""), 10);
+        const suffix = match[2];
+        const duration = 1300;
+        const start = performance.now();
+
+        const tick = (now) => {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const current = Math.round(target * eased);
+          setDisplay(current.toLocaleString("en-IN") + suffix);
+          if (progress < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        obs.unobserve(el);
+      },
+      { threshold: 0.4 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [value]);
+
+  return (
+    <div ref={ref}>
+      <span className="impact-stat__num">{display ?? "0"}</span>
+      <span className="impact-stat__label">{label}</span>
+    </div>
+  );
+}
+
 export default function CampaignsPage() {
   const [slide, setSlide] = useState(0);
   const slideRef = useRef(0);
@@ -148,20 +230,22 @@ export default function CampaignsPage() {
           <div key={i} className={`camp-hero__slide${i === slide ? " active" : ""}`}>
             <img src={s.img} alt={s.heading.join(" ")} className="camp-hero__img" />
             <div className="camp-hero__overlay" />
-            <div className="camp-hero__text">
-              <span className="camp-hero__tag">{s.tag}</span>
-              <h1 className="camp-hero__heading">
-                {s.heading.map((line, li) => (
-                  <span key={li} style={{ display: "block" }}>
-                    {li === s.heading.length - 1
-                      ? <span style={{ color: "var(--orange)", fontStyle: "italic" }}>{line}</span>
-                      : line}
-                  </span>
-                ))}
-              </h1>
-              <p className="camp-hero__sub">{s.sub}</p>
-              <Link to={s.link} className="camp-hero__btn">Pledge Your Support →</Link>
-            </div>
+            {i === slide && (
+              <div className="camp-hero__text" key={slide}>
+                <span className="camp-hero__tag">{s.tag}</span>
+                <h1 className="camp-hero__heading">
+                  {s.heading.map((line, li) => (
+                    <span key={li} style={{ "--i": li }}>
+                      {li === s.heading.length - 1
+                        ? <span className="camp-hero__heading-accent">{line}</span>
+                        : line}
+                    </span>
+                  ))}
+                </h1>
+                <p className="camp-hero__sub">{s.sub}</p>
+                <Link to={s.link} className="camp-hero__btn">Pledge Your Support →</Link>
+              </div>
+            )}
           </div>
         ))}
 
@@ -171,56 +255,63 @@ export default function CampaignsPage() {
         <div className="camp-hero__dots">
           {HERO_SLIDES.map((_, i) => (
             <button
-              key={i}
+              key={i === slide ? `active-${slide}` : i}
               className={`camp-hero__dot${i === slide ? " active" : ""}`}
               onClick={() => setSlide(i)}
               aria-label={`Slide ${i + 1}`}
-            />
+            >
+              {i === slide && <span className="camp-hero__dot-fill" />}
+            </button>
           ))}
         </div>
       </div>
 
       {/* ── UPCOMING CAMPAIGNS ── */}
       <div className="support-section">
-        <h2 className="support-section__heading">Upcoming Campaigns</h2>
-        <p style={{
-          fontFamily: "var(--dm)", fontSize: 15, color: "var(--muted)",
-          textAlign: "center", maxWidth: 580, margin: "-28px auto 44px",
-          lineHeight: 1.75,
-        }}>
-          These campaigns are being planned for rural and underprivileged communities across India.
-          Your donation today helps us launch them sooner and reach more people.
-        </p>
+        <Reveal>
+          <h2 className="support-section__heading">Upcoming Campaigns</h2>
+        </Reveal>
+        <Reveal delay={80}>
+          <p className="support-section__intro">
+            These campaigns are being planned for rural and underprivileged communities across India.
+            Your donation today helps us launch them sooner and reach more people.
+          </p>
+        </Reveal>
         <div className="support-grid">
-          {CAMPAIGNS.map(({ img, title, tag, desc, goal, launch }) => (
-            <div key={title} className="support-card">
-              <div className="support-card__img-wrap">
-                <img src={img} alt={title} className="support-card__img" />
-                <div className="support-card__img-overlay" />
-                <h3 className="support-card__title">{title}</h3>
-              </div>
-              <div className="support-card__body">
-                <span className="support-card__tag">{tag}</span>
-
-                {/* Upcoming badge */}
-                <span className="support-card__upcoming">🕐 Upcoming</span>
-
-                <p className="support-card__desc">{desc}</p>
-
-                {/* Launch date */}
-                <p className="support-card__launch">
-                  📅 Planned launch: <strong>{launch}</strong>
-                </p>
-
-                {/* Funding goal */}
-                <div className="support-card__goal">
-                  <span>Funding Goal</span>
-                  <strong>{goal}</strong>
+          {CAMPAIGNS.map(({ img, title, tag, desc, goal, launch }, i) => (
+            <Reveal key={title} delay={(i % 4) * 80} className="support-card-wrap">
+              <div className="support-card">
+                <div className="support-card__img-wrap">
+                  <img src={img} alt={title} className="support-card__img" />
+                  <div className="support-card__img-overlay" />
+                  <h3 className="support-card__title">{title}</h3>
                 </div>
+                <div className="support-card__body">
+                  <span className="support-card__tag">{tag}</span>
 
-                <Link to="/donate" className="support-card__btn">Donate to Make This Happen →</Link>
+                  {/* Upcoming badge */}
+                  <span className="support-card__upcoming">
+                    <span className="support-card__upcoming-dot" />
+                    Upcoming
+                  </span>
+
+                  <p className="support-card__desc">{desc}</p>
+
+                  {/* Launch date */}
+                  <p className="support-card__launch">
+                    📅 Planned launch: <strong>{launch}</strong>
+                  </p>
+
+                  {/* Funding goal */}
+                  <div className="support-card__goal">
+                    <span>Funding Goal</span>
+                    <strong>{goal}</strong>
+                  </div>
+
+                  <Link to="/donate" className="support-card__btn">Donate to Make This Happen →</Link>
+                </div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -228,16 +319,20 @@ export default function CampaignsPage() {
       {/* ── OUR PROGRAMMES ── */}
       <div className="programmes-section">
         <div className="programmes-inner">
-          <h2 className="programmes-heading">Our Programmes</h2>
+          <Reveal>
+            <h2 className="programmes-heading">Our Programmes</h2>
+          </Reveal>
           <div className="programmes-grid">
-            {PROGRAMMES.map(({ icon, bg, title, desc }) => (
-              <div key={title} className="programme-item">
-                <div className="programme-icon" style={{ background: bg }}>{icon}</div>
-                <div>
-                  <h3 className="programme-title">{title}</h3>
-                  <p className="programme-desc">{desc}</p>
+            {PROGRAMMES.map(({ icon, bg, title, desc }, i) => (
+              <Reveal key={title} delay={(i % 2) * 90} className="programme-item-wrap">
+                <div className="programme-item">
+                  <div className="programme-icon" style={{ background: bg }}>{icon}</div>
+                  <div>
+                    <h3 className="programme-title">{title}</h3>
+                    <p className="programme-desc">{desc}</p>
+                  </div>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -245,20 +340,28 @@ export default function CampaignsPage() {
 
       {/* ── HOW YOUR DONATION HELPS ── */}
       <div className="helps-section">
-        <h2 className="helps-heading">How Your Donation Helps</h2>
-        <p className="helps-subhead">
-          Every rupee you donate goes directly toward one of these campaigns. Here's exactly what your contribution can do.
-        </p>
+        <Reveal>
+          <h2 className="helps-heading">How Your Donation Helps</h2>
+        </Reveal>
+        <Reveal delay={80}>
+          <p className="helps-subhead">
+            Every rupee you donate goes directly toward one of these campaigns. Here's exactly what your contribution can do.
+          </p>
+        </Reveal>
         <div className="helps-grid">
-          {HELPS.map(({ img, icon, title, desc }) => (
-            <div key={title} className="helps-card">
-              <img src={img} alt={title} className="helps-card__img" />
-              <div className="helps-card__body">
-                <span className="helps-card__icon">{icon}</span>
-                <h3 className="helps-card__title">{title}</h3>
-                <p className="helps-card__desc">{desc}</p>
+          {HELPS.map(({ img, icon, title, desc }, i) => (
+            <Reveal key={title} delay={i * 100} className="helps-card-wrap">
+              <div className="helps-card">
+                <div className="helps-card__img-wrap">
+                  <img src={img} alt={title} className="helps-card__img" />
+                </div>
+                <div className="helps-card__body">
+                  <span className="helps-card__icon">{icon}</span>
+                  <h3 className="helps-card__title">{title}</h3>
+                  <p className="helps-card__desc">{desc}</p>
+                </div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -266,18 +369,19 @@ export default function CampaignsPage() {
       {/* ── IMPACT GOALS ── */}
       <div className="impact-section">
         <div className="impact-inner">
-          <h2 className="impact-heading">What We Aim to Achieve</h2>
+          <Reveal>
+            <h2 className="impact-heading">What We Aim to Achieve</h2>
+          </Reveal>
           <div className="impact-grid">
             {[
               { n: "2,000+", l: "Children to receive books & stationery" },
               { n: "500+",   l: "Families to get medical supplies" },
               { n: "10",     l: "Villages targeted for sanitation drives" },
               { n: "6",      l: "Campaigns planned across India" },
-            ].map(({ n, l }) => (
-              <div key={l}>
-                <span className="impact-stat__num">{n}</span>
-                <span className="impact-stat__label">{l}</span>
-              </div>
+            ].map(({ n, l }, i) => (
+              <Reveal key={l} delay={i * 90}>
+                <AnimatedStat value={n} label={l} />
+              </Reveal>
             ))}
           </div>
         </div>
@@ -285,11 +389,18 @@ export default function CampaignsPage() {
 
       {/* ── CTA ── */}
       <div className="camp-cta">
-        <h2 className="camp-cta__heading">Be the First to Make It Happen</h2>
-        <p className="camp-cta__body">
-          None of these campaigns have launched yet — but with your support, they can. Donate today and help us reach the communities that need it most.
-        </p>
-        <Link to="/donate" className="camp-cta__btn">Donate Now →</Link>
+        <div className="camp-cta__glow" />
+        <Reveal>
+          <h2 className="camp-cta__heading">Be the First to Make It Happen</h2>
+        </Reveal>
+        <Reveal delay={80}>
+          <p className="camp-cta__body">
+            None of these campaigns have launched yet — but with your support, they can. Donate today and help us reach the communities that need it most.
+          </p>
+        </Reveal>
+        <Reveal delay={160}>
+          <Link to="/donate" className="camp-cta__btn">Donate Now →</Link>
+        </Reveal>
       </div>
 
     </div>
