@@ -67,12 +67,18 @@ export default function Hero() {
             support programs, we strive to improve the quality of life for vulnerable individuals
             and families.
           </p>
+          <p className="hero__body">
+            The challenges are real, but so is the hope. Every campaign we run, every child we reach,
+            every family we support is proof that a better world is not just possible — it is already
+            being built, one small act at a time. We refuse to look away, and we invite you to stand 
+            with us.
+          </p>
           <p className="hero__body hero__body--quote">
             Together, we can build stronger communities, nurture brighter futures, and ensure
             that no one is left behind.
           </p>
 
-          <div className="hero__cta-row">
+          {/* <div className="hero__cta-row">
             <button className="hero__cta-btn">Get Started →</button>
             <span className="hero__social-label">Follow us on</span>
             <div className="hero__socials">
@@ -80,7 +86,7 @@ export default function Hero() {
                 <a key={i} href="#" className="hero__social-icon">{s}</a>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* RIGHT: Slideshow */}

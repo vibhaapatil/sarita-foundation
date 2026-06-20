@@ -343,7 +343,7 @@ export default function FocusAreasPage() {
   return (
     <div
       style={{
-        background: "#F5F0E8",
+        background: "#EDE5D4",
         minHeight: "100vh",
         fontFamily: "'DM Sans', sans-serif",
         paddingTop: "80px",
@@ -525,7 +525,7 @@ export default function FocusAreasPage() {
               fontFamily: "'Playfair Display', serif",
               fontSize: "clamp(28px, 4vw, 52px)",
               fontWeight: 900,
-              color: "#F5F0E8",
+              color: "#EDE5D4",
               margin: "0 0 20px",
               lineHeight: 1.2,
             }}

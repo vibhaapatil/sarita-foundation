@@ -249,9 +249,9 @@ export default function CampaignsPage() {
           </div>
         ))}
 
-        <p className="camp-hero__counter">
+        {/* <p className="camp-hero__counter">
           <span>{String(slide + 1).padStart(2, "0")}</span> / {String(HERO_SLIDES.length).padStart(2, "0")}
-        </p>
+        </p> */}
         <div className="camp-hero__dots">
           {HERO_SLIDES.map((_, i) => (
             <button

@@ -2,7 +2,7 @@
 
 /* ── Tokens ── */
 :root {
-  --cream:  #F5F0E8;
+  --cream:  hsl(41, 41%, 88%);
   --dark:   #2C2416;
   --orange: #D4621A;
   --green:  #4A7C59;

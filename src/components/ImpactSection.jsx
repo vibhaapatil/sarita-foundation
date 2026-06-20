@@ -16,7 +16,7 @@ const focusAreas = [
       "Our awareness programs reach deep into rural and semi-urban communities, working with local schools, teachers, and parents to build a culture where education is valued and prioritized. We train volunteers to conduct after-school sessions, bridging the gap between classroom learning and real-world understanding.",
       "We believe that every child, regardless of where they are born or how much their family earns, deserves access to quality education. Through our programs, we have supported thousands of children across communities — giving them not just books, but the belief that their future is worth investing in.",
     ],
-    image: educationImg, // replace with your image path
+    image: educationImg, 
     imageAlt: "Children engasged in education programs",
   },
   {

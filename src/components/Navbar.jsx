@@ -42,36 +42,35 @@ export default function Navbar() {
   </Link>
 
   <button
-    className="navbar__hamburger"
-    onClick={() => setMenuOpen(!menuOpen)}
-    aria-label="Toggle menu"
-  >
-    ☰
-  </button>
+  className={`navbar__hamburger ${menuOpen ? "navbar__hamburger--open" : ""}`}
+  onClick={() => setMenuOpen(!menuOpen)}
+  aria-label="Toggle menu"
+>
+  <span />
+  <span />
+  <span />
+</button>
 </div>
 
-{menuOpen && (
-  <div className="navbar__mobile-menu">
-    {NAV_LINKS.map(({ label, path }) => (
-      <Link
-        key={label}
-        to={path}
-        className="navbar__mobile-link"
-        onClick={() => setMenuOpen(false)}
-      >
-        {label}
-      </Link>
-    ))}
-
+<div className={`navbar__mobile-menu ${menuOpen ? "navbar__mobile-menu--open" : ""}`}>
+  {NAV_LINKS.map(({ label, path }) => (
     <Link
-      to="/donate"
-      className="navbar__donate-btn navbar__donate-btn--mobile"
+      key={label}
+      to={path}
+      className="navbar__mobile-link"
       onClick={() => setMenuOpen(false)}
     >
-      Donate Now →
+      {label}
     </Link>
-  </div>
-)}
+  ))}
+  <Link
+    to="/donate"
+    className="navbar__donate-btn navbar__donate-btn--mobile"
+    onClick={() => setMenuOpen(false)}
+  >
+    Donate Now →
+  </Link>
+</div>
     </nav>
   );
 }

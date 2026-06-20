@@ -141,7 +141,7 @@ async function handleSubmit(e) {
 
   return (
     <div style={{
-      background: "#F5F0E8",
+      background: "#EDE5D4",
       minHeight: "100vh",
       fontFamily: "'DM Sans', sans-serif",
       paddingTop: "80px",
@@ -407,7 +407,7 @@ async function handleSubmit(e) {
                   disabled={submitting}
                   style={{
                     background: submitting ? "#9A8878" : "#1C1410",
-                    color: "#F5F0E8",
+                    color: "#EDE5D4",
                     border: "none", borderRadius: "50px",
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: "16px", fontWeight: 700,
@@ -422,7 +422,7 @@ async function handleSubmit(e) {
                     <>
                       <span style={{
                         display: "inline-block", width: "16px", height: "16px",
-                        border: "2px solid #F5F0E866", borderTopColor: "#F5F0E8",
+                        border: "2px solid #F5F0E866", borderTopColor: "#EDE5D4",
                         borderRadius: "50%",
                         animation: "spin 0.8s linear infinite",
                       }} />

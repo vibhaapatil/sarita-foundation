@@ -67,7 +67,7 @@ function VolunteerCard({ role, index }) {
       <div style={{
         position: "absolute", top: 0, right: 0,
         width: "80px", height: "80px",
-        background: hovered ? "#C4773B22" : "#F5F0E8",
+        background: hovered ? "#C4773B22" : "#EDE5D4",
         borderRadius: "0 18px 0 80px",
         transition: "all 0.4s ease",
       }} />
@@ -75,7 +75,7 @@ function VolunteerCard({ role, index }) {
       <h3 style={{
         fontFamily: "'Playfair Display', serif",
         fontSize: "20px", fontWeight: 900,
-        color: hovered ? "#F5F0E8" : "#1C1410",
+        color: hovered ? "#EDE5D4" : "#1C1410",
         margin: "0 0 10px",
         transition: "color 0.3s ease",
       }}>{role.label}</h3>
@@ -204,7 +204,7 @@ export default function SupportUsPage() {
 
   return (
     <div style={{
-      background: "#F5F0E8",
+      background: "#EDE5D4",
       minHeight: "100vh",
       fontFamily: "'DM Sans', sans-serif",
       paddingTop: "80px",
@@ -274,7 +274,7 @@ export default function SupportUsPage() {
               <a key={label} href={`#${label.toLowerCase().replace(/\s/g, "-")}`}
                 style={{
                   background: i === 0 ? "#1C1410" : "transparent",
-                  color: i === 0 ? "#F5F0E8" : "#1C1410",
+                  color: i === 0 ? "#EDE5D4" : "#1C1410",
                   border: "2px solid #1C1410",
                   fontSize: "14px", fontWeight: 700,
                   padding: "12px 24px", borderRadius: "50px",
@@ -289,7 +289,7 @@ export default function SupportUsPage() {
                 onMouseLeave={e => {
                   e.target.style.background = i === 0 ? "#1C1410" : "transparent";
                   e.target.style.borderColor = "#1C1410";
-                  e.target.style.color = i === 0 ? "#F5F0E8" : "#1C1410";
+                  e.target.style.color = i === 0 ? "#EDE5D4" : "#1C1410";
                 }}
               >{label}</a>
             ))}
@@ -346,7 +346,7 @@ export default function SupportUsPage() {
       </section>
 
       {/* ── Volunteer Section ── */}
-      <section id="volunteer" style={{ background: "#FDF8F2", padding: "90px 24px" }}>
+      <section id="volunteer" style={{ background: "#EDE5D4", padding: "90px 24px" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ marginBottom: "56px" }}>
             <SectionLabel>Get Involved</SectionLabel>
@@ -382,7 +382,7 @@ export default function SupportUsPage() {
       </section>
 
       {/* ── Partner Section ── */}
-      <section id="partner" style={{ padding: "90px 24px", background: "#F5F0E8" }}>
+      <section id="partner" style={{ padding: "90px 24px", background: "#EDE5D4" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "80px", alignItems: "center" }}>
           {/* Image */}
           <div style={{ position: "relative", borderRadius: "24px", overflow: "hidden", height: "420px" }}>
@@ -398,7 +398,7 @@ export default function SupportUsPage() {
               background: "rgba(28,20,16,0.85)",
               backdropFilter: "blur(8px)",
               borderRadius: "14px", padding: "18px 22px",
-              color: "#F5F0E8",
+              color: "#EDE5D4",
             }}>
               <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "18px", fontWeight: 900, margin: "0 0 4px" }}>
                 "Together we reach further."
@@ -451,7 +451,7 @@ export default function SupportUsPage() {
             <h2 style={{
               fontFamily: "'Playfair Display', serif",
               fontSize: "clamp(30px, 4vw, 48px)",
-              fontWeight: 900, color: "#F5F0E8",
+              fontWeight: 900, color: "#EDE5D4",
               lineHeight: 1.15, margin: "0 0 20px",
             }}>
               🤲 What We<em style={{ color: "#C4773B", fontStyle: "italic" }}> Accept</em>
@@ -486,7 +486,7 @@ export default function SupportUsPage() {
               <h3 style={{
                 fontFamily: "'Playfair Display', serif",
                 fontSize: "24px", fontWeight: 900,
-                color: "#F5F0E8", margin: "0 0 8px",
+                color: "#EDE5D4", margin: "0 0 8px",
               }}>Got something to donate?</h3>
               <p style={{ fontSize: "15px", color: "#9A8878", margin: 0 }}>
                 Reach out and we'll coordinate collection at your convenience.
@@ -510,7 +510,7 @@ export default function SupportUsPage() {
       </section>
 
       {/* ── Final CTA ── */}
-      <section style={{ padding: "80px 24px", textAlign: "center", background: "#FDF8F2" }}>
+      <section style={{ padding: "80px 24px", textAlign: "center", background: "#EDE5D4" }}>
         <div style={{ maxWidth: "600px", margin: "0 auto" }}>
           <p style={{ fontSize: "48px", marginBottom: "20px" }}>🌟</p>
           <h2 style={{
@@ -526,7 +526,7 @@ export default function SupportUsPage() {
           </p>
           <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
             <a href="/contact" style={{
-              background: "#1C1410", color: "#F5F0E8",
+              background: "#1C1410", color: "#EDE5D4",
               fontWeight: 700, fontSize: "15px",
               padding: "14px 32px", borderRadius: "50px",
               textDecoration: "none",
